@@ -16,6 +16,8 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: ruff check app runner tests
       - run: pytest -q
+      - name: Live LDAPS and workspace access matrix
+        run: CHECKMAYO_TEST_LDAP=1 pytest tests/test_ldap_live.py -q --tb=short
       - run: pip-audit -r requirements.txt --progress-spinner off
   secrets:
     runs-on: ubuntu-latest

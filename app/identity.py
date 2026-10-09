@@ -112,7 +112,7 @@ async def ldap_login(request: Request, response: Response):
     if not url.startswith("ldaps://"):
         raise HTTPException(503, "LDAP requires LDAPS with certificate verification")
     server = Server(
-        url, tls=Tls(validate=ssl.CERT_REQUIRED, ca_certs_file=os.getenv("LDAP_CA_FILE")), connect_timeout=10
+        url, tls=Tls(validate=ssl.CERT_REQUIRED, ca_certs_file=os.getenv("LDAP_CA_FILE") or None), connect_timeout=10
     )
     try:
         with Connection(
@@ -122,15 +122,20 @@ async def ldap_login(request: Request, response: Response):
             auto_bind=True,
             receive_timeout=10,
         ) as service:
-            query = os.getenv("LDAP_USER_FILTER", "(uid={username})").replace(
+            query = (os.getenv("LDAP_USER_FILTER") or "(uid={username})").replace(
                 "{username}", escape_filter_chars(username)
             )
             service.search(os.environ["LDAP_BASE_DN"], query, attributes=["mail", "entryUUID"])
             if len(service.entries) != 1:
                 raise ValueError()
             entry = service.entries[0]
-            dn, email = entry.entry_dn, str(entry.mail)
-            subject = str(entry.entryUUID) if "entryUUID" in entry else dn
+            from app.schemas import Account
+
+            dn, email = entry.entry_dn, Account.email_valid(str(entry.mail))
+            # Some directories return a requested UUID attribute with an empty value.
+            # An empty UUID must never merge different users into one identity.
+            uuid = entry.entryUUID.value if "entryUUID" in entry else None
+            subject = str(uuid) if uuid else dn
         with Connection(server, user=dn, password=password, auto_bind=True, receive_timeout=10):
             pass
     except Exception:

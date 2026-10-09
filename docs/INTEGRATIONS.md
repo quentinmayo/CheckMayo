@@ -31,3 +31,22 @@ Configure `ollama` with `url` and `model`, then enable AI in workspace settings.
 Set OIDC discovery URL, client ID and client secret in your controller's environment. Register `PUBLIC_URL/api/auth/oidc/callback` at the provider. Authorization-code flow validates state/nonce and requires verified email. Identities are bound to issuer+subject; they do not silently take over a local account by matching email.
 
 For LDAP, set `LDAP_URL=ldaps://...`, service bind DN/password, base DN, optional filter and CA path. LDAPS certificates are verified. UI login offers directory sign-in when configured. These are deployment-administrator settings in this release; credential rotation, group sync and managed identity-provider UI are roadmap work.
+
+The Compose stack forwards OIDC and LDAP variables from its private `.env`. For a private directory CA, mount its public CA file read-only with a local override and set `LDAP_CA_FILE=/run/checkmayo/directory-ca.crt`:
+
+```yaml
+services:
+  app:
+    volumes:
+      - /private/directory-ca.crt:/run/checkmayo/directory-ca.crt:ro
+```
+
+Keep bind passwords in private configuration. A directory user starts with a personal workspace and receives organization permissions only when that workspace's owner or administrator adds them. Directory administrator status does not grant CheckMayo site administrator status.
+
+Run reproducible live LDAPS tests with Docker and the development dependencies:
+
+```bash
+CHECKMAYO_TEST_LDAP=1 .venv/bin/pytest tests/test_ldap_live.py -q
+```
+
+The test creates an isolated LLDAP directory, short-lived private CA, loopback-only ports and disposable users. It verifies certificate checks, bad credentials, escaped filters, identity separation, and the owner/admin/operator/viewer permission matrix; its finalizer removes the directory container and generated credentials.
