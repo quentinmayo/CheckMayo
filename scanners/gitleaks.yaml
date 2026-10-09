@@ -1,0 +1,12 @@
+services:
+  scanner:
+    image: ghcr.io/gitleaks/gitleaks:v8.30.1
+    user: '65532:65532'
+    command: ['dir', '/src', '--report-format', 'json', '--report-path', '/reports/report.json', '--redact', '--no-banner']
+    volumes:
+      - '${SOURCE_DIR}:/src:ro'
+      - '${REPORT_DIR}:/reports:rw'
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']

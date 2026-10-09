@@ -1,0 +1,1 @@
+{"name":"Trivy configuration","version":"0.75.0","description":"Offline infrastructure configuration checks. Vulnerability scanning requires a reviewed image with a preloaded vulnerability database.","category":"SCA","report_path":"report.json","scan_type":"Trivy Scan"}

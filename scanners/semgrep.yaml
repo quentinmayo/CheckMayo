@@ -1,0 +1,14 @@
+services:
+  scanner:
+    image: semgrep/semgrep:1.180.0
+    user: '65532:65532'
+    entrypoint: ['sh', '-c']
+    command:
+      - 'printf "%s\n" "rules:" "  - id: python-eval" "    pattern: eval(...)" "    message: Review dynamic code evaluation" "    languages: [python]" "    severity: WARNING" > /tmp/rules.yaml; semgrep scan --config /tmp/rules.yaml --metrics off --disable-version-check --json --output /reports/report.json /src'
+    volumes:
+      - '${SOURCE_DIR}:/src:ro'
+      - '${REPORT_DIR}:/reports:rw'
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']

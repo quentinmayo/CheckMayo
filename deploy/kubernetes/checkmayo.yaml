@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: checkmayo
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: checkmayo-budget
+  namespace: checkmayo
+spec:
+  hard:
+    requests.cpu: '2'
+    requests.memory: 2Gi
+    limits.cpu: '3'
+    limits.memory: 3Gi
+    pods: '5'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkmayo
+  namespace: checkmayo
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels: {app: checkmayo}
+  template:
+    metadata:
+      labels: {app: checkmayo}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: controller
+          image: ghcr.io/quentinmayo/checkmayo:main
+          ports: [{containerPort: 8000}]
+          envFrom:
+            - secretRef: {name: checkmayo-runtime}
+          env:
+            - {name: CHECKMAYO_MODE, value: controller}
+            - {name: CHECKMAYO_STATE_DIR, value: /data}
+          resources:
+            requests: {cpu: 250m, memory: 256Mi}
+            limits: {cpu: '1', memory: 768Mi}
+          readinessProbe:
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 10
+          livenessProbe:
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          volumeMounts:
+            - {name: scratch, mountPath: /tmp}
+            - {name: state, mountPath: /data}
+      volumes:
+        - name: scratch
+          emptyDir: {sizeLimit: 256Mi}
+        - name: state
+          emptyDir: {sizeLimit: 16Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkmayo
+  namespace: checkmayo
+spec:
+  selector: {app: checkmayo}
+  ports: [{port: 80, targetPort: 8000}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: controller-boundary
+  namespace: checkmayo
+spec:
+  podSelector: {matchLabels: {app: checkmayo}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {}
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: ingress-nginx}
+      ports: [{protocol: TCP, port: 8000}]
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports: [{protocol: UDP, port: 53}, {protocol: TCP, port: 53}]
+    - ports: [{protocol: TCP, port: 5432}]

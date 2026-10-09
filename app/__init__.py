@@ -1,0 +1,1 @@
+"""CheckMayo control plane."""

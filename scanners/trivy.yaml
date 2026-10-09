@@ -1,0 +1,12 @@
+services:
+  scanner:
+    image: aquasec/trivy:0.75.0
+    user: '65532:65532'
+    command: ['fs', '--scanners', 'misconfig', '--skip-check-update', '--cache-dir', '/tmp/trivy', '--format', 'json', '--output', '/reports/report.json', '/src']
+    volumes:
+      - '${SOURCE_DIR}:/src:ro'
+      - '${REPORT_DIR}:/reports:rw'
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']

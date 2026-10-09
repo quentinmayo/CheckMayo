@@ -1,0 +1,35 @@
+{
+  "family": "checkmayo-controller",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": {"cpuArchitecture": "X86_64", "operatingSystemFamily": "LINUX"},
+  "executionRoleArn": "REPLACE_WITH_EXECUTION_ROLE_ARN",
+  "containerDefinitions": [{
+    "name": "controller",
+    "image": "ghcr.io/quentinmayo/checkmayo:main",
+    "essential": true,
+    "user": "10001:10001",
+    "portMappings": [{"containerPort": 8000, "protocol": "tcp"}],
+    "environment": [
+      {"name": "PUBLIC_URL", "value": "https://REPLACE_WITH_CONTROLLER_DOMAIN"},
+      {"name": "CHECKMAYO_MODE", "value": "controller"},
+      {"name": "CHECKMAYO_SIGNUP", "value": "false"}
+    ],
+    "secrets": [
+      {"name": "DATABASE_URL", "valueFrom": "REPLACE_WITH_DATABASE_URL_SECRET_ARN"},
+      {"name": "CHECKMAYO_ENCRYPTION_KEY", "valueFrom": "REPLACE_WITH_ENCRYPTION_KEY_SECRET_ARN"},
+      {"name": "CHECKMAYO_ADMIN_EMAIL", "valueFrom": "REPLACE_WITH_ADMIN_EMAIL_SECRET_ARN"},
+      {"name": "CHECKMAYO_ADMIN_PASSWORD", "valueFrom": "REPLACE_WITH_ADMIN_PASSWORD_SECRET_ARN"}
+    ],
+    "healthCheck": {
+      "command": ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=4)"],
+      "interval": 30, "timeout": 5, "retries": 3, "startPeriod": 30
+    },
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {"awslogs-group": "/checkmayo/controller", "awslogs-region": "REPLACE_WITH_REGION", "awslogs-stream-prefix": "controller"}
+    }
+  }]
+}

@@ -1,0 +1,1 @@
+{"name":"Semgrep starter","version":"1.180.0","description":"An offline Python eval rule demonstrates portable SAST packaging. Publish a reviewed package with your full rule set for broader coverage.","category":"SAST","report_path":"report.json","scan_type":"Semgrep JSON Report"}

@@ -1,0 +1,1 @@
+"""CheckMayo remote runner."""

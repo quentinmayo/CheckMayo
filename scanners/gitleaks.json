@@ -1,0 +1,1 @@
+{"name":"Gitleaks","version":"8.30.1","description":"Detect exposed secrets in source files. Reports redact secret values before upload.","category":"Secrets","report_path":"report.json","scan_type":"Gitleaks Scan"}

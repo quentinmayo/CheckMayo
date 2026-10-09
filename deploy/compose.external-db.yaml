@@ -1,0 +1,8 @@
+# docker compose -f compose.yaml -f deploy/compose.external-db.yaml up -d
+services:
+  app:
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Supply your PostgreSQL URL}
+    depends_on: !reset []
+  db:
+    profiles: ['local-database-disabled']

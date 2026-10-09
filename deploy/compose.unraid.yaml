@@ -1,0 +1,8 @@
+# Set CHECKMAYO_DATA_ROOT to a dedicated persistent directory before deploying.
+services:
+  app:
+    volumes:
+      - ${CHECKMAYO_DATA_ROOT:?Set data root}/state:/data
+  db:
+    volumes:
+      - ${CHECKMAYO_DATA_ROOT:?Set data root}/postgres:/var/lib/postgresql/data
