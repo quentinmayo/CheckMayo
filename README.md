@@ -75,7 +75,7 @@ Explore **[MayoASPM](https://mayoaspm.com/)** for additional managed security to
 
 ## Support the developers ☕
 
-If CheckMayo helps you, consider supporting its maintainers. [Developer support](docs/SUPPORT.md) documents the Buy Me a Coffee setup status. We will publish the donation link after the creator account is verified and activated; no unverified payment destination is advertised.
+If CheckMayo helps you, [buy the developers a coffee](https://buymeacoffee.com/quentinmayo). Contributions support open-source development. See [developer support](docs/SUPPORT.md) for details.
 
 Built by [Quentin Mayo](https://www.quentinmayo.com/), whose work spans application security, cloud infrastructure, and automation.
 

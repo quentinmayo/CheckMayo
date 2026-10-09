@@ -174,3 +174,19 @@ def test_opa_critical_policy_and_forbidden_network():
             'package checkmayo.triage\nimport rego.v1\nresult := http.send({"method":"GET","url":"https://example.com"})',
             {},
         )
+
+
+def test_saved_policy_can_be_disabled(client):
+    import shutil
+
+    if not shutil.which("opa"):
+        pytest.skip("OPA required for real policy validation")
+    wid = account(client)
+    body = {"source": Path("policies/triage.rego").read_text(), "input": {}, "enabled": False}
+    assert client.put(f"/api/workspaces/{wid}/policy", json=body).status_code == 200
+    saved = client.get(f"/api/workspaces/{wid}/policy").json()
+    assert saved["enabled"] is False
+    assert saved["version"] == 1
+    body["enabled"] = True
+    assert client.put(f"/api/workspaces/{wid}/policy", json=body).status_code == 200
+    assert client.get(f"/api/workspaces/{wid}/policy").json()["enabled"] is True

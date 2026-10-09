@@ -100,6 +100,16 @@ def seed(db):
         new_workspace(db, admin, "CheckMayo community", "organization")
         db.commit()
     if admin:
+        # Withdraw the broken starter without changing its immutable Compose source or digest.
+        db.execute(
+            update(Package)
+            .where(
+                Package.workspace_id.is_(None),
+                Package.name == "Semgrep starter",
+                Package.version == "1.180.0",
+            )
+            .values(approved=False)
+        )
         for path in (Path(__file__).parent.parent / "scanners").glob("*.json"):
             manifest = json.loads(path.read_text())
             existing = db.scalar(
@@ -439,6 +449,33 @@ def package_approve(pid: int, request: Request):
         audit(db, p.workspace_id, user.id, "package.approve", p.sha256)
         db.commit()
     return {"approved": True}
+
+
+@app.post("/api/admin/packages/{pid}/withdraw")
+def package_withdraw(pid: int, request: Request):
+    with Session() as db:
+        user, credential = authenticate(request, db)
+        if not user.site_admin or credential.workspace_id is not None:
+            raise HTTPException(403, "Site administrator session required")
+        package = db.get(Package, pid)
+        if not package or package.visibility != "community":
+            raise HTTPException(404, "Community package not found")
+        package.approved = False
+        audit(db, package.workspace_id, user.id, "package.withdraw", package.sha256)
+        db.commit()
+    return {"approved": False}
+
+
+@app.get("/api/admin/packages/{pid}/source")
+def package_review_source(pid: int, request: Request):
+    with Session() as db:
+        user, credential = authenticate(request, db)
+        if not user.site_admin or credential.workspace_id is not None:
+            raise HTTPException(403, "Site administrator session required")
+        package = db.get(Package, pid)
+        if not package or package.visibility != "community":
+            raise HTTPException(404, "Community package not found")
+        return {"compose": package.compose, "sha256": package.sha256}
 
 
 @app.get("/api/packages/{pid}/download")

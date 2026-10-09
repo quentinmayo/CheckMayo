@@ -173,6 +173,7 @@ def policy_put(wid: int, data: PolicyInput, request: Request):
         else:
             row = Policy(workspace_id=wid, source=data.source)
             db.add(row)
+        row.enabled = data.enabled
         db.add(Audit(workspace_id=wid, user_id=user.id, action="policy.save"))
         db.commit()
         return {"saved": True, "version": row.version}

@@ -4,7 +4,7 @@ services:
     user: '65532:65532'
     entrypoint: ['sh', '-c']
     command:
-      - 'printf "%s\n" "rules:" "  - id: python-eval" "    pattern: eval(...)" "    message: Review dynamic code evaluation" "    languages: [python]" "    severity: WARNING" > /tmp/rules.yaml; semgrep scan --config /tmp/rules.yaml --metrics off --disable-version-check --json --output /reports/report.json /src'
+      - 'export HOME=/tmp; printf "%s\n" "rules:" "  - id: python-eval" "    pattern: eval(...)" "    message: Review dynamic code evaluation" "    languages: [python]" "    severity: WARNING" > /tmp/rules.yaml; semgrep scan --config /tmp/rules.yaml --metrics off --disable-version-check --json --output /reports/report.json /src'
     volumes:
       - '${SOURCE_DIR}:/src:ro'
       - '${REPORT_DIR}:/reports:rw'

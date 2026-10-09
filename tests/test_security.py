@@ -97,6 +97,8 @@ def test_community_review_and_immutable_versions(client):
     p = package(client, wid, visibility="community")
     assert p["id"] not in [x["id"] for x in client.get("/api/registry").json()]
     assert client.post(f"/api/admin/packages/{p['id']}/approve").status_code == 403
+    assert client.get(f"/api/admin/packages/{p['id']}/source").status_code == 403
+    assert client.post(f"/api/admin/packages/{p['id']}/withdraw").status_code == 403
     data = {"name": "Test scanner", "version": "1.0", "description": "changed", "compose": SOURCE}
     assert client.post(f"/api/workspaces/{wid}/packages", json=data).status_code == 409
     assert (
@@ -105,8 +107,13 @@ def test_community_review_and_immutable_versions(client):
         ).status_code
         == 200
     )
+    source = client.get(f"/api/admin/packages/{p['id']}/source").json()
+    assert source == {"compose": SOURCE, "sha256": p["sha256"]}
     assert client.post(f"/api/admin/packages/{p['id']}/approve").status_code == 200
     assert p["id"] in [x["id"] for x in client.get("/api/registry").json()]
+    assert client.post(f"/api/admin/packages/{p['id']}/withdraw").status_code == 200
+    assert p["id"] not in [x["id"] for x in client.get("/api/registry").json()]
+    assert client.get(f"/api/admin/packages/{p['id']}/source").json() == source
 
 
 def test_viewer_cannot_change_settings_or_triage(client):

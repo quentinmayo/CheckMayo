@@ -100,3 +100,4 @@ class MemberInput(BaseModel):
 class PolicyInput(BaseModel):
     source: str = Field(max_length=65536)
     input: dict = Field(default_factory=dict)
+    enabled: bool = True
