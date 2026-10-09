@@ -1,3 +1,5 @@
+![CheckMayo — Your scanners. Your infrastructure. Your call.](docs/assets/checkmayo-banner.png)
+
 # CheckMayo
 
 **Your scanners. Your infrastructure. Your call.**
