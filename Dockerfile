@@ -14,7 +14,7 @@ COPY --from=opa /opa /usr/local/bin/opa
 COPY app app
 COPY scanners scanners
 COPY scripts/opa-capabilities.py /tmp/opa-capabilities.py
-RUN python /tmp/opa-capabilities.py && rm /tmp/opa-capabilities.py
+RUN python /tmp/opa-capabilities.py && rm /tmp/opa-capabilities.py && chmod -R a+rX app scanners
 USER 10001:10001
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=4)"]
