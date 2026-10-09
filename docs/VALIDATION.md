@@ -12,6 +12,7 @@ Validation completed on October 9, 2026. This matrix distinguishes executed test
 | Hosted community registry | Verified HTTPS, administrator login, review queue, public package listing, donation link and mobile layout; PostgreSQL/state bound to the Coolify host's verified external drive; app/database CPU and memory limits applied. Controller image pinned by digest |
 | Unraid host Compose | Controller and PostgreSQL ran directly on Unraid with dedicated bind-mounted storage, loopback app access, resource limits and a successful health check |
 | VM installer | One-line installation on a fresh Unraid-hosted Ubuntu VM passed. The first test exposed a restrictive-umask source-permission bug; the corrected non-root image passed the retest |
+| Fresh Ubuntu inspection server | A second fresh Ubuntu Server 24.04.5 VM with 8 vCPUs / 10 GiB RAM passed installation, real starter scans, PostgreSQL-backed role checks, OPA, restart persistence, installer repeat and all 34 automated checks. A browser-queued scan completed through its systemd runner. This VM is retained for inspection at the user's request |
 | Real scanner execution | Outbound VM runner completed Gitleaks, Trivy configuration and Semgrep starter scans of the public repository; each produced a downloadable report. Semgrep's writable HOME fix was published as a new immutable package version |
 | Local Kubernetes | K3s v1.37.1+k3s1 on the disposable Unraid VM: controller and PostgreSQL deployment rollouts and controller health passed |
 | AWS EC2 | Ubuntu 24.04 Compose installer passed on a dedicated encrypted-volume EC2 instance; SSM and controller health checks passed |
@@ -22,7 +23,23 @@ Validation completed on October 9, 2026. This matrix distinguishes executed test
 | Organization mirror | Private securelyprogramming/CheckMayo-internal CI, live LDAPS/access checks and real Gitleaks scanning passed on push. PR/cron triggers configured; organization-wide GitHub App rollout is not implied |
 | Developer support | Maintainer's public Buy Me a Coffee creator profile verified; README, GitHub funding and site links configured. No payment/payout transaction performed |
 | Secret checks | Known operational credential comparison and full eligible-file Gitleaks scan before staging; staged scan and pre-commit hook before each commit; public/private CI and history scans passed |
-| Cleanup | Temporary EC2/ECS/EKS infrastructure, dedicated IAM roles, VPC/network resources, Unraid VM/overlay, Unraid test containers/storage, local test stack and live-directory fixtures removed. The live Coolify registry, its persistent database and production DNS are retained |
+| Cleanup | Original temporary EC2/ECS/EKS infrastructure, dedicated IAM roles, VPC/network resources, Unraid VM/overlay, Unraid test containers/storage, local test stack and live-directory fixtures removed. The live Coolify registry, its persistent database, production DNS and later Ubuntu inspection VM are retained |
+
+## Fresh Ubuntu Server retest
+
+On October 9, 2026, a new Ubuntu Server 24.04.5 VM was provisioned on Unraid with **8 vCPUs, 10 GiB RAM and a 24 GiB disk**. Cloud-init finished without errors. Docker Engine 29.1.3 and Compose 2.40.3 were installed from Ubuntu's packages. The public installer deployed source commit `c78b94ec99b2feb063d8757a4dccab316f4f7235` with local PostgreSQL; its initial install completed in 158 seconds.
+
+Executed checks on this fresh server:
+
+- Semgrep starter, Gitleaks and Trivy configuration scans produced downloadable JSON reports from the public repository. Their package digests matched the reviewed source files. Completion is not a clean-security assessment.
+- The actual PostgreSQL-backed controller passed owner/admin/operator/viewer read, write and administration boundaries, unrelated-workspace denial, API-key revocation, OPA preview/save and schedule pausing.
+- Report SHA-256 values, findings, account memberships, policy and runner registration survived a controller/database restart and a second installer run. Non-root execution, the controller's read-only filesystem, and Compose memory limits were verified.
+- All **34 automated tests** passed on the VM, including the five live verified-LDAPS tests. These automated tests use isolated fixtures; the separate controller checks above exercise the deployed PostgreSQL instance. The directory fixtures were removed and LDAP is not left configured on the inspection controller.
+- A systemd-managed outbound runner completed a scan queued through the browser UI. Login, report download, the 390px layout and zero browser JavaScript errors were verified.
+
+The first Semgrep attempt was interrupted and requeued; its retry completed. The initial cause was not confirmed. Subsequent scanner and service-runner checks passed.
+
+This VM and its deployment are **intentionally retained for inspection**, with access through a loopback SSH tunnel. Operational addresses, credentials, reports and private logs remain outside the public repository. Controller and runner are co-located only in this disposable test environment; production scanner hosts should remain separate dedicated VMs. External OIDC, Ollama and comprehensive DefectDojo parser validation remain outstanding.
 
 ## Reproduce identity checks
 
