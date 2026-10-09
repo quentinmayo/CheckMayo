@@ -8,6 +8,6 @@ The preview establishes a tested control plane and a conservative scanner execut
 4. Deepen report coverage: validated DefectDojo parser matrix, richer findings metadata, portfolio views, duplicate strategies, reimport and remediation tracking.
 5. Automate risk workflows: versioned policy bundles, dry-run diffs, PR checks with confidential summaries, ticketing and documented exception expiry.
 6. Operate at scale: metrics, durable queue backend, quotas, report retention, encrypted object storage, HA scheduler, release signing and database migrations.
-7. Community operations: maintainer/review queues, revocation, publisher reputation, scanner search tags and activated donation account.
+7. Community operations: publisher reputation, signed submissions, scanner search tags, moderation history and review automation.
 
 Deployment guides are not proof that every cloud path is supported or tested. The validation matrix records the current evidence.
