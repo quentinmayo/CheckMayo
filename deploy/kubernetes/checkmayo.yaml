@@ -51,6 +51,10 @@ spec:
           readinessProbe:
             httpGet: {path: /health, port: 8000}
             initialDelaySeconds: 10
+          startupProbe:
+            httpGet: {path: /health, port: 8000}
+            periodSeconds: 5
+            failureThreshold: 24
           livenessProbe:
             httpGet: {path: /health, port: 8000}
             initialDelaySeconds: 30

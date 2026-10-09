@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, or_, select, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.config import encrypt
 from app.db import (
@@ -172,7 +172,15 @@ async def tick():
 
 @asynccontextmanager
 async def lifespan(_):
-    Base.metadata.create_all(engine)
+    # Kubernetes can start the controller before an external database becomes ready.
+    for attempt in range(30):
+        try:
+            Base.metadata.create_all(engine)
+            break
+        except OperationalError:
+            if attempt == 29:
+                raise
+            await asyncio.sleep(2)
     with Session() as db:
         seed(db)
     task = asyncio.create_task(tick())
