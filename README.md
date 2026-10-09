@@ -6,7 +6,7 @@
 
 CheckMayo is an Apache 2.0 security orchestration platform for solo developers and teams. Publish scanners as Docker Compose packages, run them on your own machines, and keep security reports in your own database.
 
-[Community registry](https://checkmayo.programmingsecurely.com) · [Deployment guide](docs/DEPLOYMENT.md) · [Scanner contract](docs/SCANNERS.md) · [API and integrations](docs/INTEGRATIONS.md) · [Roadmap](docs/ROADMAP.md)
+[Community registry](https://checkmayo.programmingsecurely.com) · [Wiki](https://github.com/quentinmayo/CheckMayo/wiki) · [Deployment guide](docs/DEPLOYMENT.md) · [Scanner contract](docs/SCANNERS.md) · [API and integrations](docs/INTEGRATIONS.md) · [Roadmap](docs/ROADMAP.md)
 
 > **v0.1 preview:** a working foundation with explicit security boundaries. This release is not a complete replacement for Checkmarx or DefectDojo. See [compatibility](docs/COMPATIBILITY.md) and [validation](docs/VALIDATION.md) for what is implemented and what has actually been tested.
 
@@ -22,6 +22,25 @@ CheckMayo is an Apache 2.0 security orchestration platform for solo developers a
 - Preview and save Rego triage policies with restricted OPA execution. AI summaries are off by default and use your own Ollama endpoint when explicitly enabled.
 - Use Swagger at `/docs` or `/openapi.json`, and create revocable workspace API keys with 90-day expiry.
 - Sign in with local accounts, an administrator-configured OIDC provider, or LDAPS.
+
+## Screenshots
+
+Browse reviewed Compose scanners in the community registry, then manage scans and schedules in your own controller.
+
+![Search and download reviewed scanner packages](docs/assets/screenshots/scanner-registry.png)
+
+![Queue scans, download reports, and manage UTC schedules](docs/assets/screenshots/scans-and-schedules.png)
+
+<details>
+<summary>See runner management and finding triage</summary>
+
+![Manage runner locations, labels, and availability](docs/assets/screenshots/runners.png)
+
+![Review normalized findings and triage decisions](docs/assets/screenshots/findings.png)
+
+</details>
+
+Screenshots show the running preview with disposable demo data and synthetic reports. See the [full eight-screen tour](docs/SCREENSHOTS.md) and [wiki guides](https://github.com/quentinmayo/CheckMayo/wiki) for setup, access controls, integrations, and deployments.
 
 ## Quick start
 
