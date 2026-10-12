@@ -3,6 +3,7 @@ import hmac
 import json
 import os
 import re
+import string
 from datetime import timedelta
 
 import httpx
@@ -16,6 +17,7 @@ from app.schemas import PolicyInput
 from app.security import endpoint, owner_access
 
 router = APIRouter()
+REPO_NAME_CHARS = frozenset(string.ascii_letters + string.digits + "_.-")
 
 
 def validate_integration(kind, config):
@@ -35,8 +37,10 @@ def validate_integration(kind, config):
         if kind == "defectdojo" and (not str(config["engagement"]).isdigit() or not config["token"]):
             raise ValueError("Engagement ID and API token required")
     if kind == "github":
+        owner, _, name = str(config["repository"]).partition("/")
         if (
-            not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", config["repository"])
+            not owner or not name or "/" in name
+            or not set(owner + name) <= REPO_NAME_CHARS
             or len(config["webhook_secret"]) < 32
         ):
             raise ValueError("Use owner/repo and a webhook secret of at least 32 characters")
