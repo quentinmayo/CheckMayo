@@ -233,7 +233,7 @@ async def guards(request, call_next):
     response.headers["Referrer-Policy"] = "same-origin"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
-    if request.url.path in ("/", "/app"):
+    if request.url.path in ("/", "/app", "/privacy"):
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
         )
@@ -246,6 +246,11 @@ async def guards(request, call_next):
 @app.get("/app", include_in_schema=False)
 def home():
     return FileResponse(STATIC / "index.html")
+
+
+@app.get("/privacy", include_in_schema=False)
+def privacy():
+    return FileResponse(STATIC / "privacy.html")
 
 
 @app.get("/health")
